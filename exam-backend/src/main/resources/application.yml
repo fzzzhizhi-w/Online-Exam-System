@@ -39,6 +39,7 @@ spring:
         acknowledge-mode: manual
         concurrency: 5
         max-concurrency: 20
+        missing-queues-fatal: false
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: Asia/Shanghai
