@@ -156,7 +156,7 @@ public class ExamServiceImpl extends ServiceImpl<ExamArrangeMapper, ExamArrange>
      */
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> buildExamQuestions(String paperContentJson) {
-        if (paperContentJson == null || paperContentJson.isBlank()) {
+        if (paperContentJson == null || paperContentJson.trim().isEmpty()) {
             return Collections.emptyList();
         }
         try {
