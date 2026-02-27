@@ -63,7 +63,7 @@ public class AuthController {
                     .build();
             return Result.success("登录成功", vo);
         } catch (BadCredentialsException e) {
-            throw new BusinessException(401, "用户名或密码错误");
+            throw new BusinessException(400, "用户名或密码错误");
         }
     }
 
