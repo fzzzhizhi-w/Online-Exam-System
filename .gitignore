@@ -1,0 +1,31 @@
+# Maven
+exam-backend/target/
+exam-backend/.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+
+# Node.js
+exam-frontend/node_modules/
+exam-frontend/dist/
+exam-frontend/.vite/
+exam-frontend/src/auto-imports.d.ts
+exam-frontend/src/components.d.ts
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Docker
+.dockerignore
