@@ -1,6 +1,7 @@
 package com.jepai.exam.modules.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jepai.exam.common.exception.BusinessException;
@@ -28,10 +29,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        SysUser user = lambdaQuery()
-                .eq(SysUser::getUsername, username)
-                .eq(SysUser::getDeleted, 0)
-                .one();
+        SysUser user = getOne(new QueryWrapper<SysUser>().select("*")
+                .eq("username", username)
+                .eq("deleted", 0));
         if (user == null) {
             throw new UsernameNotFoundException("用户不存在: " + username);
         }

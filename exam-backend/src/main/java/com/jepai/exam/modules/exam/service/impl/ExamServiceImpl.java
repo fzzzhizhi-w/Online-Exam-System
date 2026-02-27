@@ -13,10 +13,12 @@ import com.jepai.exam.modules.exam.entity.ExamRecord;
 import com.jepai.exam.modules.exam.mapper.ExamArrangeMapper;
 import com.jepai.exam.modules.exam.mapper.ExamRecordMapper;
 import com.jepai.exam.modules.exam.service.ExamService;
+import com.jepai.exam.modules.grade.service.GradeService;
 import com.jepai.exam.modules.paper.entity.Paper;
 import com.jepai.exam.modules.paper.service.PaperService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -41,6 +43,7 @@ public class ExamServiceImpl extends ServiceImpl<ExamArrangeMapper, ExamArrange>
     private final PaperService paperService;
     private final RedisTemplate<String, Object> redisTemplate;
     private final RabbitTemplate rabbitTemplate;
+    private final GradeService gradeService;
     private final ObjectMapper objectMapper;
 
     /** Redis key 前缀：考生答题进度 */
@@ -165,11 +168,16 @@ public class ExamServiceImpl extends ServiceImpl<ExamArrangeMapper, ExamArrange>
         recordMapper.updateById(record);
 
         // 发送到RabbitMQ异步评卷
-        rabbitTemplate.convertAndSend(
-                RabbitMQConfig.GRADING_EXCHANGE,
-                RabbitMQConfig.GRADING_ROUTING_KEY,
-                recordId
-        );
+        try {
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfig.GRADING_EXCHANGE,
+                    RabbitMQConfig.GRADING_ROUTING_KEY,
+                    recordId
+            );
+        } catch (AmqpException e) {
+            log.warn("RabbitMQ不可用，降级为同步评卷, recordId: {}", recordId, e);
+            gradeService.autoGrade(recordId);
+        }
 
         // 清除Redis缓存
         redisTemplate.delete(cacheKey);

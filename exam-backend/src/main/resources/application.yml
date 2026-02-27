@@ -37,8 +37,8 @@ spring:
     listener:
       simple:
         acknowledge-mode: manual
-        concurrency: 5
-        max-concurrency: 20
+        concurrency: 1
+        max-concurrency: 5
         missing-queues-fatal: false
         recovery-interval: 30000
   jackson:

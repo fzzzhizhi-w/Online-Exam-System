@@ -22,7 +22,7 @@ public class Knife4jConfig {
 
     @Bean
     public Docket createRestApi() {
-        return new Docket(DocumentationType.OAS_30)
+        return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.jepai.exam.modules"))
