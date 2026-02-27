@@ -200,11 +200,18 @@ onMounted(async () => {
 
     // 解析试卷内容
     if (res.data.paperContent) {
-      try {
-        paperContent.value = JSON.parse(res.data.paperContent)
-        allQuestions.value = paperContent.value?.questions || []
-      } catch (e) {
-        allQuestions.value = []
+      const content = res.data.paperContent
+      if (Array.isArray(content)) {
+        // 后端返回的已展开题目列表
+        allQuestions.value = content
+        paperContent.value = content
+      } else {
+        try {
+          paperContent.value = JSON.parse(content)
+          allQuestions.value = paperContent.value?.questions || []
+        } catch (e) {
+          allQuestions.value = []
+        }
       }
     }
 

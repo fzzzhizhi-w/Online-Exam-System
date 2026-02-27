@@ -3,6 +3,7 @@ package com.jepai.exam.modules.exam.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jepai.exam.common.config.RabbitMQConfig;
 import com.jepai.exam.common.exception.BusinessException;
@@ -16,6 +17,8 @@ import com.jepai.exam.modules.exam.service.ExamService;
 import com.jepai.exam.modules.grade.service.GradeService;
 import com.jepai.exam.modules.paper.entity.Paper;
 import com.jepai.exam.modules.paper.service.PaperService;
+import com.jepai.exam.modules.question.entity.Question;
+import com.jepai.exam.modules.question.service.QuestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
@@ -30,7 +33,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -45,6 +51,7 @@ public class ExamServiceImpl extends ServiceImpl<ExamArrangeMapper, ExamArrange>
 
     private final ExamRecordMapper recordMapper;
     private final PaperService paperService;
+    private final QuestionService questionService;
     private final RedisTemplate<String, Object> redisTemplate;
     @Nullable
     @Autowired(required = false)
@@ -132,16 +139,67 @@ public class ExamServiceImpl extends ServiceImpl<ExamArrangeMapper, ExamArrange>
             log.warn("Redis不可用，无法恢复答题进度", e);
         }
 
-        // 获取试卷内容
+        // 获取试卷内容，并填充题目详情
         Paper paper = paperService.getById(exam.getPaperId());
 
         Map<String, Object> result = new HashMap<>();
         result.put("recordId", record.getId());
         result.put("examInfo", exam);
-        result.put("paperContent", paper != null ? paper.getContent() : null);
+        result.put("paperContent", paper != null ? buildExamQuestions(paper.getContent()) : null);
         result.put("savedAnswers", cachedAnswers);
         result.put("startTime", record.getStartTime());
         return result;
+    }
+
+    /**
+     * 解析试卷内容，从题库中获取题目详情，返回供考生答题的题目列表（不含答案）
+     */
+    @SuppressWarnings("unchecked")
+    private List<Map<String, Object>> buildExamQuestions(String paperContentJson) {
+        if (paperContentJson == null || paperContentJson.isBlank()) {
+            return Collections.emptyList();
+        }
+        try {
+            Map<String, Object> paperContent = objectMapper.readValue(
+                    paperContentJson, new TypeReference<Map<String, Object>>() {});
+            List<Map<String, Object>> sections =
+                    (List<Map<String, Object>>) paperContent.get("sections");
+            if (sections == null) {
+                return Collections.emptyList();
+            }
+            List<Map<String, Object>> questions = new ArrayList<>();
+            for (Map<String, Object> section : sections) {
+                List<Map<String, Object>> sectionQuestions =
+                        (List<Map<String, Object>>) section.get("questions");
+                if (sectionQuestions == null) continue;
+                for (Map<String, Object> qRef : sectionQuestions) {
+                    Object questionIdObj = qRef.get("questionId");
+                    if (questionIdObj == null) {
+                        log.warn("试卷内容中存在无效的题目引用（questionId 为空）");
+                        continue;
+                    }
+                    Long questionId = ((Number) questionIdObj).longValue();
+                    Double score = qRef.get("score") != null
+                            ? ((Number) qRef.get("score")).doubleValue() : null;
+                    Question question = questionService.getById(questionId);
+                    if (question == null) {
+                        log.warn("试卷引用的题目不存在，questionId: {}", questionId);
+                        continue;
+                    }
+                    Map<String, Object> qMap = new HashMap<>();
+                    qMap.put("id", question.getId());
+                    qMap.put("content", question.getContent());
+                    qMap.put("type", question.getType());
+                    qMap.put("options", question.getOptions());
+                    qMap.put("score", score != null ? score : question.getScore());
+                    questions.add(qMap);
+                }
+            }
+            return questions;
+        } catch (Exception e) {
+            log.error("解析试卷内容失败", e);
+            return Collections.emptyList();
+        }
     }
 
     @Override

@@ -39,7 +39,7 @@
         <!-- ECharts图表 -->
         <div ref="chartRef" class="chart-container" />
 
-        <el-button type="primary" @click="$router.back()">返回</el-button>
+        <el-button type="primary" @click="$router.push({ name: 'StudentExamList' })">返回首页</el-button>
       </div>
     </el-card>
   </div>
