@@ -63,6 +63,20 @@ const routes = [
         component: () => import('@/views/admin/grade/GradeTaskListView.vue'),
         meta: { title: '评卷中心', roles: ['SUPER_ADMIN', 'ORG_ADMIN', 'TEACHER', 'GRADER'] },
       },
+      // 学生：我的考试
+      {
+        path: 'student/exams',
+        name: 'StudentExamList',
+        component: () => import('@/views/student/StudentExamListView.vue'),
+        meta: { title: '我的考试', roles: ['STUDENT'] },
+      },
+      // 学生：我的成绩
+      {
+        path: 'student/records',
+        name: 'StudentRecordList',
+        component: () => import('@/views/student/StudentRecordListView.vue'),
+        meta: { title: '我的成绩', roles: ['STUDENT'] },
+      },
       // 统计分析
       {
         path: 'stats/exam/:examId',

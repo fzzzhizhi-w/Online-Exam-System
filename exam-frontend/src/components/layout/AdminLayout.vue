@@ -49,10 +49,22 @@
             <template #title>考试管理</template>
           </el-menu-item>
 
-          <!-- 评卷中心 -->
-          <el-menu-item index="/grade/tasks">
+          <!-- 评卷中心（教师/评卷员/管理员可见） -->
+          <el-menu-item v-if="!authStore.isStudent" index="/grade/tasks">
             <el-icon><Checked /></el-icon>
             <template #title>评卷中心</template>
+          </el-menu-item>
+
+          <!-- 学生：我的考试 -->
+          <el-menu-item v-if="authStore.isStudent" index="/student/exams">
+            <el-icon><Calendar /></el-icon>
+            <template #title>我的考试</template>
+          </el-menu-item>
+
+          <!-- 学生：我的成绩 -->
+          <el-menu-item v-if="authStore.isStudent" index="/student/records">
+            <el-icon><Document /></el-icon>
+            <template #title>我的成绩</template>
           </el-menu-item>
 
           <!-- 系统管理 -->
