@@ -6,6 +6,11 @@ server:
       min-spare: 50
     connection-timeout: 20000
 
+# 自定义配置：是否启用 RabbitMQ 异步评卷（未部署 RabbitMQ 时设为 false，使用同步评卷降级）
+exam:
+  rabbitmq:
+    enabled: false
+
 spring:
   application:
     name: exam-backend

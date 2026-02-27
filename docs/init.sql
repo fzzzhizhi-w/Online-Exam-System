@@ -320,3 +320,109 @@ INSERT INTO sys_dict (dict_type, dict_label, dict_value, sort, status) VALUES
 ('user_role', '教师', 'TEACHER', 3, 1),
 ('user_role', '评卷员', 'GRADER', 4, 1),
 ('user_role', '考生', 'STUDENT', 5, 1);
+
+-- =============================================
+-- 示例数据
+-- =============================================
+
+-- 更多学生账号（密码均为 exam@123456）
+INSERT INTO sys_user (id, username, password, real_name, org_id, dept_id, job_number, role_code, status) VALUES
+(6,  'student02', '$2a$10$EpI/ovkopG8rWgpriJiz8urmvsPz.DDvBR7BqEeRc5XkPsbVvW4Dq', '学员02', 1, 2, '2024002', 'STUDENT', 1),
+(7,  'student03', '$2a$10$EpI/ovkopG8rWgpriJiz8urmvsPz.DDvBR7BqEeRc5XkPsbVvW4Dq', '学员03', 1, 2, '2024003', 'STUDENT', 1),
+(8,  'teacher02', '$2a$10$EpI/ovkopG8rWgpriJiz8urmvsPz.DDvBR7BqEeRc5XkPsbVvW4Dq', '教师02', 1, 2, NULL,       'TEACHER', 1);
+
+-- 示例题目（Java程序设计科目）
+INSERT INTO exam_question (id, content, type, options, answer, analysis, subject_id, difficulty, score, audit_status, status, org_id, creator_id) VALUES
+(1,  'Java中，以下哪个关键字用于声明一个类不可被继承？',
+     1,
+     '[{"label":"A","text":"static"},{"label":"B","text":"final"},{"label":"C","text":"abstract"},{"label":"D","text":"private"}]',
+     'B', '使用 final 关键字修饰的类不能被继承。',
+     1, 2, 2.00, 1, 1, 1, 3),
+(2,  '下列关于Java异常处理的说法，正确的是？',
+     1,
+     '[{"label":"A","text":"finally块在任何情况下都不会执行"},{"label":"B","text":"try块中可以没有catch块，但必须有finally块"},{"label":"C","text":"catch块可以捕获Error类型的异常"},{"label":"D","text":"一个try块只能对应一个catch块"}]',
+     'B', 'try 块可以只配合 finally 块使用，不必须有 catch 块。',
+     1, 3, 2.00, 1, 1, 1, 3),
+(3,  'Java中，String、StringBuilder、StringBuffer三者线程安全的是？',
+     2,
+     '[{"label":"A","text":"String"},{"label":"B","text":"StringBuilder"},{"label":"C","text":"StringBuffer"},{"label":"D","text":"以上都线程安全"}]',
+     'AC', 'String 不可变故线程安全；StringBuffer 方法加了同步锁故线程安全；StringBuilder 非线程安全。',
+     1, 3, 3.00, 1, 1, 1, 3),
+(4,  'Java是一种纯面向对象的编程语言。',
+     3, NULL,
+     'B', 'Java 中存在基本数据类型（int、char 等），这些不是对象，因此 Java 不是纯面向对象语言。',
+     1, 2, 2.00, 1, 1, 1, 3),
+(5,  'Java中用于实现接口的关键字是____。',
+     4, NULL,
+     'implements', 'implements 关键字用于类实现接口。',
+     1, 1, 2.00, 1, 1, 1, 3),
+(6,  '请简述Java中垃圾回收机制的工作原理。',
+     5, NULL,
+     'Java垃圾回收机制通过JVM自动管理内存，主要有引用计数法和可达性分析法。现代JVM使用可达性分析，当对象不可达时标记为垃圾，GC线程负责清除，常用算法有标记-清除、标记-整理、复制算法以及分代收集策略。',
+     '包含：可达性分析、GC线程、标记清除/整理/复制算法、分代收集',
+     1, 4, 10.00, 1, 1, 1, 3),
+-- 数据结构与算法科目题目
+(7,  '时间复杂度为O(n log n)的排序算法是？',
+     2,
+     '[{"label":"A","text":"冒泡排序"},{"label":"B","text":"快速排序"},{"label":"C","text":"归并排序"},{"label":"D","text":"堆排序"}]',
+     'BCD', '快速排序、归并排序、堆排序的平均/最坏时间复杂度均为 O(n log n)。',
+     2, 3, 3.00, 1, 1, 1, 3),
+(8,  '栈（Stack）是一种先进先出（FIFO）的数据结构。',
+     3, NULL,
+     'B', '栈是后进先出（LIFO）；队列才是先进先出（FIFO）。',
+     2, 1, 2.00, 1, 1, 1, 3),
+(9,  '二叉搜索树中序遍历的结果是____序列。',
+     4, NULL,
+     '有序（升序）', '二叉搜索树的中序遍历（左-根-右）结果是升序排列的序列。',
+     2, 2, 2.00, 1, 1, 1, 3),
+(10, '快速排序算法的平均时间复杂度是？',
+     1,
+     '[{"label":"A","text":"O(n)"},{"label":"B","text":"O(n log n)"},{"label":"C","text":"O(n²)"},{"label":"D","text":"O(log n)"}]',
+     'B', '快速排序平均时间复杂度为 O(n log n)，最坏情况为 O(n²)。',
+     2, 2, 2.00, 1, 1, 1, 3),
+-- 计算机网络科目题目
+(11, 'HTTP协议默认使用的端口号是？',
+     1,
+     '[{"label":"A","text":"21"},{"label":"B","text":"22"},{"label":"C","text":"80"},{"label":"D","text":"443"}]',
+     'C', 'HTTP 默认端口为 80，HTTPS 默认端口为 443。',
+     3, 1, 2.00, 1, 1, 1, 3),
+(12, 'TCP协议提供可靠的、面向连接的传输服务。',
+     3, NULL,
+     'A', 'TCP（传输控制协议）提供可靠的、面向连接的传输，通过序号、确认和重传机制保证数据可靠传输。',
+     3, 1, 2.00, 1, 1, 1, 3),
+(13, 'DNS的主要功能是将____转换为IP地址。',
+     4, NULL,
+     '域名', 'DNS（域名系统）负责将人类可读的域名（如 www.example.com）解析为IP地址。',
+     3, 2, 2.00, 1, 1, 1, 3),
+(14, '以下哪些协议属于应用层协议？',
+     2,
+     '[{"label":"A","text":"HTTP"},{"label":"B","text":"TCP"},{"label":"C","text":"FTP"},{"label":"D","text":"SMTP"}]',
+     'ACD', 'HTTP、FTP、SMTP 都是应用层协议；TCP 属于传输层协议。',
+     3, 2, 3.00, 1, 1, 1, 3);
+
+-- 示例试卷
+INSERT INTO exam_paper (id, name, subject_id, generate_mode, content, total_score, pass_score, duration, status, org_id, creator_id) VALUES
+(1, 'Java程序设计基础测试卷', 1, 1,
+ '{"sections":[{"title":"单选题","questions":[{"questionId":1,"score":2},{"questionId":2,"score":2},{"questionId":10,"score":2}]},{"title":"多选题","questions":[{"questionId":3,"score":3}]},{"title":"判断题","questions":[{"questionId":4,"score":2}]},{"title":"填空题","questions":[{"questionId":5,"score":2}]},{"title":"简答题","questions":[{"questionId":6,"score":10}]}]}',
+ 21.00, 12.00, 60, 1, 1, 3),
+(2, '数据结构与算法测试卷', 2, 1,
+ '{"sections":[{"title":"单选题","questions":[{"questionId":10,"score":2}]},{"title":"多选题","questions":[{"questionId":7,"score":3}]},{"title":"判断题","questions":[{"questionId":8,"score":2}]},{"title":"填空题","questions":[{"questionId":9,"score":2}]}]}',
+ 9.00, 5.00, 30, 1, 1, 3),
+(3, '计算机网络基础测试卷', 3, 1,
+ '{"sections":[{"title":"单选题","questions":[{"questionId":11,"score":2}]},{"title":"多选题","questions":[{"questionId":14,"score":3}]},{"title":"判断题","questions":[{"questionId":12,"score":2}]},{"title":"填空题","questions":[{"questionId":13,"score":2}]}]}',
+ 9.00, 5.00, 30, 1, 1, 3);
+
+-- 示例考试安排
+INSERT INTO exam_arrange (id, name, paper_id, exam_type, start_time, end_time, duration, show_score, show_analysis, max_attempts, switch_screen_limit, status, org_id, creator_id) VALUES
+(1, 'Java程序设计期末考试', 1, 1,
+ DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_ADD(NOW(), INTERVAL 5 DAY),
+ 60, 1, 0, 1, 3, 1, 1, 3),
+(2, '数据结构与算法阶段测试', 2, 2,
+ DATE_SUB(NOW(), INTERVAL 1 DAY), DATE_ADD(NOW(), INTERVAL 7 DAY),
+ 30, 1, 1, 3, 0, 1, 1, 3),
+(3, '计算机网络入门测试', 3, 2,
+ DATE_SUB(NOW(), INTERVAL 3 DAY), DATE_ADD(NOW(), INTERVAL 4 DAY),
+ 30, 1, 1, 0, 0, 1, 1, 3),
+(4, 'Java综合能力评估（已结束）', 1, 1,
+ DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 20 DAY),
+ 60, 1, 1, 1, 3, 3, 1, 3);

@@ -20,7 +20,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -42,9 +45,14 @@ public class ExamServiceImpl extends ServiceImpl<ExamArrangeMapper, ExamArrange>
     private final ExamRecordMapper recordMapper;
     private final PaperService paperService;
     private final RedisTemplate<String, Object> redisTemplate;
-    private final RabbitTemplate rabbitTemplate;
+    @Nullable
+    @Autowired(required = false)
+    private RabbitTemplate rabbitTemplate;
     private final GradeService gradeService;
     private final ObjectMapper objectMapper;
+
+    @Value("${exam.rabbitmq.enabled:false}")
+    private boolean rabbitMqEnabled;
 
     /** Redis key 前缀：考生答题进度 */
     private static final String ANSWER_CACHE_KEY = "exam:answer:%d:%d";
@@ -167,15 +175,20 @@ public class ExamServiceImpl extends ServiceImpl<ExamArrangeMapper, ExamArrange>
         }
         recordMapper.updateById(record);
 
-        // 发送到RabbitMQ异步评卷
-        try {
-            rabbitTemplate.convertAndSend(
-                    RabbitMQConfig.GRADING_EXCHANGE,
-                    RabbitMQConfig.GRADING_ROUTING_KEY,
-                    recordId
-            );
-        } catch (AmqpException e) {
-            log.warn("RabbitMQ不可用，降级为同步评卷, recordId: {}", recordId, e);
+        // 发送到RabbitMQ异步评卷（RabbitMQ未启用时降级为同步评卷）
+        if (rabbitMqEnabled && rabbitTemplate != null) {
+            try {
+                rabbitTemplate.convertAndSend(
+                        RabbitMQConfig.GRADING_EXCHANGE,
+                        RabbitMQConfig.GRADING_ROUTING_KEY,
+                        recordId
+                );
+            } catch (AmqpException e) {
+                log.warn("RabbitMQ不可用，降级为同步评卷, recordId: {}", recordId, e);
+                gradeService.autoGrade(recordId);
+            }
+        } else {
+            log.info("RabbitMQ未启用，使用同步评卷, recordId: {}", recordId);
             gradeService.autoGrade(recordId);
         }
 

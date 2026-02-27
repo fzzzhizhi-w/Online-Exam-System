@@ -5,13 +5,16 @@ import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFacto
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
  * RabbitMQ 配置 - 用于异步评卷任务
+ * 仅在 exam.rabbitmq.enabled=true 时激活，避免 RabbitMQ 未部署时启动报错
  */
 @Configuration
+@ConditionalOnProperty(name = "exam.rabbitmq.enabled", havingValue = "true")
 public class RabbitMQConfig {
 
     /** 评卷任务队列 */

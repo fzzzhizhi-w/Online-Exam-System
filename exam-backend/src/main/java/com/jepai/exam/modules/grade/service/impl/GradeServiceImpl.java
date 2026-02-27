@@ -15,7 +15,6 @@ import com.jepai.exam.modules.question.entity.Question;
 import com.jepai.exam.modules.question.service.QuestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +40,6 @@ public class GradeServiceImpl extends ServiceImpl<GradeDetailMapper, GradeDetail
     private static final double SCORE_DIFF_THRESHOLD = 3.0;
 
     @Override
-    @RabbitListener(queues = "${rabbitmq.grading-queue:exam.grading.queue}")
     @Transactional(rollbackFor = Exception.class)
     public void autoGrade(Long recordId) {
         log.info("开始自动评卷，recordId: {}", recordId);
