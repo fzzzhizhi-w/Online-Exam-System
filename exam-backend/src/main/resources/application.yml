@@ -40,6 +40,7 @@ spring:
         concurrency: 5
         max-concurrency: 20
         missing-queues-fatal: false
+        recovery-interval: 30000
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: Asia/Shanghai

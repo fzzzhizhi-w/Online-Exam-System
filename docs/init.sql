@@ -284,11 +284,11 @@ INSERT INTO sys_dept (id, name, org_id, parent_id, sort, status) VALUES
 -- 初始用户（密码均为 exam@123456，BCrypt加密）
 -- BCrypt hash for "exam@123456"
 INSERT INTO sys_user (id, username, password, real_name, org_id, dept_id, role_code, status) VALUES
-(1, 'superadmin', '$2a$10$7JB720yubVSXvU1sHDUJsObBTanc00D6s7g2PW9Fob6wr3jnfLKki', '超级管理员', 1, 1, 'SUPER_ADMIN', 1),
-(2, 'orgadmin', '$2a$10$7JB720yubVSXvU1sHDUJsObBTanc00D6s7g2PW9Fob6wr3jnfLKki', '机构管理员', 1, 2, 'ORG_ADMIN', 1),
-(3, 'teacher01', '$2a$10$7JB720yubVSXvU1sHDUJsObBTanc00D6s7g2PW9Fob6wr3jnfLKki', '教师01', 1, 2, 'TEACHER', 1),
-(4, 'grader01', '$2a$10$7JB720yubVSXvU1sHDUJsObBTanc00D6s7g2PW9Fob6wr3jnfLKki', '评卷员01', 1, 2, 'GRADER', 1),
-(5, 'student01', '$2a$10$7JB720yubVSXvU1sHDUJsObBTanc00D6s7g2PW9Fob6wr3jnfLKki', '学员01', 1, 2, 'STUDENT', 1);
+(1, 'superadmin', '$2a$10$EpI/ovkopG8rWgpriJiz8urmvsPz.DDvBR7BqEeRc5XkPsbVvW4Dq', '超级管理员', 1, 1, 'SUPER_ADMIN', 1),
+(2, 'orgadmin', '$2a$10$EpI/ovkopG8rWgpriJiz8urmvsPz.DDvBR7BqEeRc5XkPsbVvW4Dq', '机构管理员', 1, 2, 'ORG_ADMIN', 1),
+(3, 'teacher01', '$2a$10$EpI/ovkopG8rWgpriJiz8urmvsPz.DDvBR7BqEeRc5XkPsbVvW4Dq', '教师01', 1, 2, 'TEACHER', 1),
+(4, 'grader01', '$2a$10$EpI/ovkopG8rWgpriJiz8urmvsPz.DDvBR7BqEeRc5XkPsbVvW4Dq', '评卷员01', 1, 2, 'GRADER', 1),
+(5, 'student01', '$2a$10$EpI/ovkopG8rWgpriJiz8urmvsPz.DDvBR7BqEeRc5XkPsbVvW4Dq', '学员01', 1, 2, 'STUDENT', 1);
 
 -- 初始科目
 INSERT INTO exam_subject (id, name, code, org_id, parent_id, sort, status, creator_id) VALUES
