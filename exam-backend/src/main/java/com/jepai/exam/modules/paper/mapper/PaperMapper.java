@@ -1,0 +1,12 @@
+package com.jepai.exam.modules.paper.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.jepai.exam.modules.paper.entity.Paper;
+import org.apache.ibatis.annotations.Mapper;
+
+/**
+ * 试卷 Mapper
+ */
+@Mapper
+public interface PaperMapper extends BaseMapper<Paper> {
+}
