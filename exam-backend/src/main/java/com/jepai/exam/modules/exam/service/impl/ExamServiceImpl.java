@@ -22,6 +22,7 @@ import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -124,7 +125,12 @@ public class ExamServiceImpl extends ServiceImpl<ExamArrangeMapper, ExamArrange>
 
         // 从Redis恢复答题进度
         String cacheKey = String.format(ANSWER_CACHE_KEY, record.getId(), userId);
-        Object cachedAnswers = redisTemplate.opsForValue().get(cacheKey);
+        Object cachedAnswers = null;
+        try {
+            cachedAnswers = redisTemplate.opsForValue().get(cacheKey);
+        } catch (DataAccessException e) {
+            log.warn("Redis不可用，无法恢复答题进度", e);
+        }
 
         // 获取试卷内容
         Paper paper = paperService.getById(exam.getPaperId());
@@ -142,7 +148,11 @@ public class ExamServiceImpl extends ServiceImpl<ExamArrangeMapper, ExamArrange>
     public void saveAnswerProgress(AnswerSubmitDTO dto) {
         // 实时将答题进度保存到Redis
         String cacheKey = String.format(ANSWER_CACHE_KEY, dto.getRecordId(), SecurityUtils.getCurrentUserId());
-        redisTemplate.opsForValue().set(cacheKey, dto.getAnswers(), CACHE_EXPIRE_HOURS, TimeUnit.HOURS);
+        try {
+            redisTemplate.opsForValue().set(cacheKey, dto.getAnswers(), CACHE_EXPIRE_HOURS, TimeUnit.HOURS);
+        } catch (DataAccessException e) {
+            log.warn("Redis不可用，答题进度保存失败", e);
+        }
     }
 
     @Override
@@ -158,7 +168,12 @@ public class ExamServiceImpl extends ServiceImpl<ExamArrangeMapper, ExamArrange>
 
         // 从Redis获取最终答案
         String cacheKey = String.format(ANSWER_CACHE_KEY, recordId, userId);
-        Object cachedAnswers = redisTemplate.opsForValue().get(cacheKey);
+        Object cachedAnswers = null;
+        try {
+            cachedAnswers = redisTemplate.opsForValue().get(cacheKey);
+        } catch (DataAccessException e) {
+            log.warn("Redis不可用，无法获取缓存答案", e);
+        }
 
         record.setStatus(1);
         record.setSubmitTime(LocalDateTime.now());
@@ -193,7 +208,11 @@ public class ExamServiceImpl extends ServiceImpl<ExamArrangeMapper, ExamArrange>
         }
 
         // 清除Redis缓存
-        redisTemplate.delete(cacheKey);
+        try {
+            redisTemplate.delete(cacheKey);
+        } catch (DataAccessException e) {
+            log.warn("Redis不可用，无法清除缓存", e);
+        }
         return record;
     }
 
