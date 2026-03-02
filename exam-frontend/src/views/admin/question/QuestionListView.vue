@@ -42,41 +42,52 @@
     <!-- 操作按钮区 -->
     <el-card shadow="never" class="table-card">
       <template #header>
-        <div class="card-header">
-          <span>题目列表</span>
-          <div>
+        <div class="card-header flex-between">
+          <div class="flex-center gap-8">
+            <el-icon color="var(--primary-color)"><EditPen /></el-icon>
+            <span class="section-title">题目列表</span>
+            <el-tag size="small" type="info" round>共 {{ total }} 题</el-tag>
+          </div>
+          <div class="flex-center gap-8">
             <el-button type="primary" :icon="Plus" @click="handleAdd">新增题目</el-button>
             <el-button :icon="Upload" @click="importDialogVisible = true">批量导入</el-button>
           </div>
         </div>
       </template>
 
-      <el-table :data="tableData" v-loading="loading" border stripe>
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="content" label="题目内容" show-overflow-tooltip>
+      <el-table :data="tableData" v-loading="loading" stripe>
+        <el-table-column prop="id" label="ID" width="70" />
+        <el-table-column prop="content" label="题目内容" show-overflow-tooltip min-width="200">
           <template #default="{ row }">
             <span v-html="row.content.substring(0, 100)" />
           </template>
         </el-table-column>
         <el-table-column prop="type" label="题型" width="90">
           <template #default="{ row }">
-            <el-tag size="small" :type="getTypeTag(row.type)">{{ getTypeName(row.type) }}</el-tag>
+            <span class="type-tag" :class="`type-${row.type}`">{{ getTypeName(row.type) }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="difficulty" label="难度" width="80">
+        <el-table-column prop="difficulty" label="难度" width="90">
           <template #default="{ row }">
-            <el-rate :model-value="row.difficulty" :max="5" disabled size="small" />
+            <span class="difficulty-stars">
+              <span
+                v-for="i in 5"
+                :key="i"
+                class="star"
+                :class="{ active: i <= row.difficulty, [`level-${row.difficulty}`]: i <= row.difficulty }"
+              >★</span>
+            </span>
           </template>
         </el-table-column>
-        <el-table-column prop="score" label="分值" width="70" />
+        <el-table-column prop="score" label="分值" width="65" align="center" />
         <el-table-column prop="auditStatus" label="审核" width="90">
           <template #default="{ row }">
-            <el-tag size="small" :type="getAuditTag(row.auditStatus)">
+            <span class="status-tag" :class="getAuditClass(row.auditStatus)">
               {{ getAuditName(row.auditStatus) }}
-            </el-tag>
+            </span>
           </template>
         </el-table-column>
-        <el-table-column prop="usedCount" label="使用次数" width="90" />
+        <el-table-column prop="usedCount" label="使用次数" width="90" align="center" />
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
             <el-button size="small" text type="primary" @click="handleEdit(row)">编辑</el-button>
@@ -255,19 +266,14 @@ const getTypeName = (type) => {
   return map[type] || type
 }
 
-const getTypeTag = (type) => {
-  const map = { 1: '', 2: 'success', 3: 'warning', 4: 'info', 5: 'danger', 6: 'danger' }
-  return map[type] || ''
-}
-
 const getAuditName = (status) => {
   const map = { 0: '待审核', 1: '已审核', 2: '已拒绝' }
   return map[status] || status
 }
 
-const getAuditTag = (status) => {
-  const map = { 0: 'warning', 1: 'success', 2: 'danger' }
-  return map[status] || 'info'
+const getAuditClass = (status) => {
+  const map = { 0: 'tag-warning', 1: 'tag-success', 2: 'tag-danger' }
+  return map[status] || 'tag-info'
 }
 
 onMounted(loadData)
@@ -276,15 +282,44 @@ onMounted(loadData)
 <style scoped lang="scss">
 .question-list {
   .search-card { margin-bottom: 16px; }
-  .table-card {
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+
+  .table-card .card-header {
+    width: 100%;
   }
+
   .pagination { margin-top: 16px; text-align: right; }
   .mb-16 { margin-bottom: 16px; }
-  .upload-tip { color: #999; font-size: 12px; margin-top: 8px; }
+  .upload-tip { color: var(--text-tertiary); font-size: 12px; margin-top: 8px; }
+
+  /* 题型标签 */
+  .type-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+
+    &.type-1 { background: rgba(22,93,255,0.1);  color: #165DFF; }
+    &.type-2 { background: rgba(0,180,42,0.1);   color: #00B42A; }
+    &.type-3 { background: rgba(255,125,0,0.1);  color: #FF7D00; }
+    &.type-4 { background: rgba(114,46,209,0.1); color: #722ED1; }
+    &.type-5 { background: rgba(245,63,63,0.1);  color: #F53F3F; }
+    &.type-6 { background: rgba(245,63,63,0.08); color: #C33232; }
+  }
+
+  /* 难度星级 */
+  .difficulty-stars {
+    .star {
+      font-size: 14px;
+      color: var(--border-color);
+      &.active {
+        &.level-1 { color: #86909C; }
+        &.level-2 { color: #165DFF; }
+        &.level-3 { color: #722ED1; }
+        &.level-4 { color: #FF7D00; }
+        &.level-5 { color: #F53F3F; }
+      }
+    }
+  }
 }
 </style>

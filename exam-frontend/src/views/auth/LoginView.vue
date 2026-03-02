@@ -3,7 +3,7 @@
     <div class="login-box">
       <div class="login-header">
         <div class="logo">
-          <el-icon size="40" color="#409EFF"><Collection /></el-icon>
+          <el-icon size="40" color="#165DFF"><Collection /></el-icon>
         </div>
         <h1>捷评智航考试系统</h1>
         <p class="subtitle">高可用智能化在线考试与智能评卷平台</p>
@@ -103,7 +103,7 @@ const handleLogin = async () => {
 <style scoped lang="scss">
 .login-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #001529 0%, #003a70 50%, #0050af 100%);
+  background: linear-gradient(135deg, #0F172A 0%, #1E3A5F 50%, #165DFF 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -111,10 +111,10 @@ const handleLogin = async () => {
 
 .login-box {
   width: 420px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 16px;
   padding: 48px 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
 }
 
 .login-header {
@@ -128,13 +128,13 @@ const handleLogin = async () => {
   h1 {
     font-size: 24px;
     font-weight: 700;
-    color: #001529;
+    color: #1D2129;
     margin-bottom: 8px;
   }
 
   .subtitle {
     font-size: 13px;
-    color: #999;
+    color: #86909C;
   }
 }
 
@@ -144,16 +144,24 @@ const handleLogin = async () => {
     height: 44px;
     font-size: 16px;
     letter-spacing: 4px;
+    background: #165DFF;
+    border-color: #165DFF;
+    border-radius: 8px;
+
+    &:hover {
+      background: #4080FF;
+      border-color: #4080FF;
+    }
   }
 }
 
 .login-tips {
   margin-top: 20px;
   padding: 12px 16px;
-  background: #f5f7fa;
-  border-radius: 6px;
+  background: #F2F3F5;
+  border-radius: 8px;
   font-size: 12px;
-  color: #666;
+  color: #4E5969;
 
   p {
     margin-bottom: 6px;

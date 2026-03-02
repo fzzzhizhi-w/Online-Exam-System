@@ -2,8 +2,11 @@
   <div class="user-list">
     <el-card shadow="never">
       <template #header>
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span>用户管理</span>
+        <div class="flex-between">
+          <div class="flex-center gap-8">
+            <el-icon color="var(--primary-color)"><User /></el-icon>
+            <span class="section-title">用户管理</span>
+          </div>
           <el-button type="primary" :icon="Plus" @click="handleAdd">新增用户</el-button>
         </div>
       </template>
@@ -62,22 +65,32 @@
         </el-button>
       </div>
 
-      <el-table :data="tableData" v-loading="loading" border @selection-change="handleSelectionChange">
+      <el-table :data="tableData" v-loading="loading" stripe @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="50" />
-        <el-table-column prop="id" label="ID" width="80" />
+        <el-table-column prop="id" label="ID" width="70" />
         <el-table-column prop="username" label="用户名" width="120" />
         <el-table-column prop="realName" label="姓名" width="100" />
-        <el-table-column prop="phone" label="手机号" width="130" />
+        <el-table-column label="手机号" width="130">
+          <template #default="{ row }">
+            <span
+              class="phone-cell"
+              @mouseenter="hoveredPhoneIds.add(row.id)"
+              @mouseleave="hoveredPhoneIds.delete(row.id)"
+            >
+              {{ hoveredPhoneIds.has(row.id) ? row.phone : maskPhone(row.phone) }}
+            </span>
+          </template>
+        </el-table-column>
         <el-table-column prop="roleCode" label="角色" width="120">
           <template #default="{ row }">
-            <el-tag size="small">{{ getRoleName(row.roleCode) }}</el-tag>
+            <span class="role-tag" :class="`role-${row.roleCode}`">{{ getRoleName(row.roleCode) }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="status" label="状态" width="80">
           <template #default="{ row }">
-            <el-tag :type="row.status === 1 ? 'success' : 'danger'" size="small">
+            <span class="status-tag" :class="row.status === 1 ? 'tag-success' : 'tag-danger'">
               {{ row.status === 1 ? '正常' : '禁用' }}
-            </el-tag>
+            </span>
           </template>
         </el-table-column>
         <el-table-column label="创建时间" width="160">
@@ -163,6 +176,7 @@ const formRef = ref()
 const editForm = ref({})
 const selectedIds = ref([])
 const createTimeRange = ref(null)
+const hoveredPhoneIds = reactive(new Set())
 
 const query = reactive({
   keyword: '',
@@ -274,11 +288,48 @@ const getRoleName = (code) => {
   return map[code] || code
 }
 
+const maskPhone = (phone) => {
+  if (!phone) return '--'
+  const str = String(phone).replace(/\D/g, '')
+  if (str.length < 7) return phone
+  const visible = Math.min(3, Math.floor(str.length / 3))
+  return str.substring(0, visible) + '****' + str.substring(str.length - 4)
+}
+
 onMounted(loadData)
 </script>
 
-<style scoped>
-.mb-16 { margin-bottom: 16px; }
-.mt-16 { margin-top: 16px; text-align: right; }
-.batch-actions { display: flex; gap: 8px; }
+<style scoped lang="scss">
+.user-list {
+  .mb-16 { margin-bottom: 16px; }
+  .mt-16 { margin-top: 16px; text-align: right; }
+  .batch-actions { display: flex; gap: 8px; }
+
+  .phone-cell {
+    cursor: default;
+    font-family: monospace;
+    font-size: 13px;
+    color: var(--text-secondary);
+    transition: color 0.2s;
+
+    &:hover {
+      color: var(--primary-color);
+    }
+  }
+
+  /* 角色标签颜色 */
+  .role-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+
+    &.role-SUPER_ADMIN { background: rgba(245,63,63,0.1);  color: #F53F3F; }
+    &.role-ORG_ADMIN   { background: rgba(255,125,0,0.1);  color: #FF7D00; }
+    &.role-TEACHER     { background: rgba(22,93,255,0.1);  color: #165DFF; }
+    &.role-GRADER      { background: rgba(114,46,209,0.1); color: #722ED1; }
+    &.role-STUDENT     { background: rgba(0,180,42,0.1);   color: #00B42A; }
+  }
+}
 </style>
