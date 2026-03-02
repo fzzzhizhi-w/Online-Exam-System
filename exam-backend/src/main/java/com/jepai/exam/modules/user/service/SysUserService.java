@@ -46,4 +46,24 @@ public interface SysUserService extends IService<SysUser>, UserDetailsService {
      * 修改密码
      */
     void changePassword(Long userId, String oldPassword, String newPassword);
+
+    /**
+     * 批量删除用户
+     */
+    void batchDelete(java.util.List<Long> ids);
+
+    /**
+     * 批量修改状态
+     */
+    void batchUpdateStatus(java.util.List<Long> ids, Integer status);
+
+    /**
+     * 检查用户名是否可用
+     */
+    boolean isUsernameAvailable(String username, Long excludeId);
+
+    /**
+     * 检查手机号是否可用
+     */
+    boolean isPhoneAvailable(String phone, Long excludeId);
 }

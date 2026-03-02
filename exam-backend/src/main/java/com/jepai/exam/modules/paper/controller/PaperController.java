@@ -60,4 +60,11 @@ public class PaperController {
         paperService.publishPaper(id);
         return Result.success();
     }
+
+    @ApiOperation("复制试卷")
+    @PostMapping("/{id}/copy")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ORG_ADMIN', 'TEACHER')")
+    public Result<Paper> copyPaper(@PathVariable Long id) {
+        return Result.success(paperService.copyPaper(id));
+    }
 }

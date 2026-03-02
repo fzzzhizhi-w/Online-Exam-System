@@ -25,8 +25,12 @@
         <el-card header="近期考试安排" shadow="hover">
           <el-table :data="recentExams" size="small">
             <el-table-column prop="name" label="考试名称" />
-            <el-table-column prop="startTime" label="开始时间" width="160" />
-            <el-table-column prop="endTime" label="结束时间" width="160" />
+            <el-table-column label="开始时间" width="160">
+              <template #default="{ row }">{{ formatDateTime(row.startTime) }}</template>
+            </el-table-column>
+            <el-table-column label="结束时间" width="160">
+              <template #default="{ row }">{{ formatDateTime(row.endTime) }}</template>
+            </el-table-column>
             <el-table-column prop="status" label="状态" width="90">
               <template #default="{ row }">
                 <el-tag :type="getExamStatusType(row.status)" size="small">
@@ -55,12 +59,14 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { pageExams } from '@/api/exam'
+import { getDashboard } from '@/api/stats'
+import { formatDateTime } from '@/utils/format'
 
 const statCards = ref([
-  { key: 'users', label: '系统用户数', value: '---', icon: 'User', color: '#409EFF' },
-  { key: 'questions', label: '题库题目数', value: '---', icon: 'EditPen', color: '#67C23A' },
-  { key: 'exams', label: '考试场次', value: '---', icon: 'Calendar', color: '#E6A23C' },
-  { key: 'records', label: '答卷总数', value: '---', icon: 'Document', color: '#F56C6C' },
+  { key: 'userCount', label: '系统用户数', value: '--', icon: 'User', color: '#409EFF' },
+  { key: 'questionCount', label: '题库题目数', value: '--', icon: 'EditPen', color: '#67C23A' },
+  { key: 'examCount', label: '考试场次', value: '--', icon: 'Calendar', color: '#E6A23C' },
+  { key: 'recordCount', label: '答卷总数', value: '--', icon: 'Document', color: '#F56C6C' },
 ])
 
 const recentExams = ref([])
@@ -81,8 +87,17 @@ const getExamStatusLabel = (status) => {
 
 onMounted(async () => {
   try {
-    const res = await pageExams({ pageNum: 1, pageSize: 5 })
-    recentExams.value = res.data?.records || []
+    const [dashRes, examRes] = await Promise.all([
+      getDashboard(),
+      pageExams({ pageNum: 1, pageSize: 5 }),
+    ])
+    const stats = dashRes.data || {}
+    statCards.value.forEach((card) => {
+      if (stats[card.key] !== undefined) {
+        card.value = stats[card.key]
+      }
+    })
+    recentExams.value = examRes.data?.records || []
   } catch (e) {}
 })
 </script>

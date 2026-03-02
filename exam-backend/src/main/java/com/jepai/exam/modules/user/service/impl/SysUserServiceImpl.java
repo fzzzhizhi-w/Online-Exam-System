@@ -49,6 +49,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .eq(query.getDeptId() != null, SysUser::getDeptId, query.getDeptId())
                 .eq(StringUtils.hasText(query.getRoleCode()), SysUser::getRoleCode, query.getRoleCode())
                 .eq(query.getStatus() != null, SysUser::getStatus, query.getStatus())
+                .ge(query.getCreateTimeStart() != null, SysUser::getCreateTime, query.getCreateTimeStart())
+                .le(query.getCreateTimeEnd() != null, SysUser::getCreateTime, query.getCreateTimeEnd())
                 .orderByDesc(SysUser::getCreateTime);
         return page(page, wrapper);
     }
@@ -129,6 +131,45 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
         lambdaUpdate().eq(SysUser::getId, userId)
                 .set(SysUser::getPassword, passwordEncoder.encode(newPassword)).update();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchDelete(java.util.List<Long> ids) {
+        if (ids != null && !ids.isEmpty()) {
+            removeByIds(ids);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchUpdateStatus(java.util.List<Long> ids, Integer status) {
+        if (ids != null && !ids.isEmpty()) {
+            lambdaUpdate().in(SysUser::getId, ids).set(SysUser::getStatus, status).update();
+        }
+    }
+
+    @Override
+    public boolean isUsernameAvailable(String username, Long excludeId) {
+        LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, username);
+        if (excludeId != null) {
+            wrapper.ne(SysUser::getId, excludeId);
+        }
+        return count(wrapper) == 0;
+    }
+
+    @Override
+    public boolean isPhoneAvailable(String phone, Long excludeId) {
+        if (!StringUtils.hasText(phone)) {
+            return true;
+        }
+        LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getPhone, phone);
+        if (excludeId != null) {
+            wrapper.ne(SysUser::getId, excludeId);
+        }
+        return count(wrapper) == 0;
     }
 
     private void copyDtoToEntity(UserSaveDTO dto, SysUser user) {

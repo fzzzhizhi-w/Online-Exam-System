@@ -16,3 +16,9 @@ export const getMyReport = (recordId) => request.get(`/stats/my/report/${recordI
 
 // 我的考试历史
 export const getMyHistory = (params) => request.get('/stats/my/history', { params })
+
+// 管理端/教师端控制台统计
+export const getDashboard = () => request.get('/stats/dashboard')
+
+// 学生端控制台统计
+export const getStudentDashboard = () => request.get('/stats/student/dashboard')

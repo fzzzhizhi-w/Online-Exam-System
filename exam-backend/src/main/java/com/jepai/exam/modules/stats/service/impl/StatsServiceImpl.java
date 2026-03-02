@@ -6,7 +6,11 @@ import com.jepai.exam.modules.exam.entity.ExamArrange;
 import com.jepai.exam.modules.exam.entity.ExamRecord;
 import com.jepai.exam.modules.exam.mapper.ExamArrangeMapper;
 import com.jepai.exam.modules.exam.mapper.ExamRecordMapper;
+import com.jepai.exam.modules.question.entity.Question;
+import com.jepai.exam.modules.question.mapper.QuestionMapper;
 import com.jepai.exam.modules.stats.service.StatsService;
+import com.jepai.exam.modules.user.entity.SysUser;
+import com.jepai.exam.modules.user.mapper.SysUserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,12 +26,15 @@ public class StatsServiceImpl implements StatsService {
 
     private final ExamRecordMapper recordMapper;
     private final ExamArrangeMapper examMapper;
+    private final SysUserMapper userMapper;
+    private final QuestionMapper questionMapper;
 
     @Override
     public Map<String, Object> getExamOverview(Long examId) {
         List<ExamRecord> records = recordMapper.selectList(
                 new LambdaQueryWrapper<ExamRecord>()
                         .eq(ExamRecord::getExamId, examId)
+                        // status 3 = completed
                         .eq(ExamRecord::getStatus, 3));
 
         ExamArrange exam = examMapper.selectById(examId);
@@ -133,5 +140,55 @@ public class StatsServiceImpl implements StatsService {
         map.put("total", result.getTotal());
         map.put("records", result.getRecords());
         return map;
+    }
+
+    @Override
+    public Map<String, Object> getDashboard() {
+        long userCount = userMapper.selectCount(
+                new LambdaQueryWrapper<SysUser>().eq(SysUser::getDeleted, 0));
+        long questionCount = questionMapper.selectCount(null);
+        long examCount = examMapper.selectCount(null);
+        long recordCount = recordMapper.selectCount(null);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("userCount", userCount);
+        result.put("questionCount", questionCount);
+        result.put("examCount", examCount);
+        result.put("recordCount", recordCount);
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> getStudentDashboard(Long userId) {
+        long pendingExamCount = examMapper.selectCount(
+                // status 1 = published, 2 = in progress
+                new LambdaQueryWrapper<ExamArrange>().in(ExamArrange::getStatus, 1, 2));
+        long completedExamCount = recordMapper.selectCount(
+                // status 3 = completed
+                new LambdaQueryWrapper<ExamRecord>()
+                        .eq(ExamRecord::getUserId, userId)
+                        .eq(ExamRecord::getStatus, 3));
+
+        List<ExamRecord> completedRecords = recordMapper.selectList(
+                new LambdaQueryWrapper<ExamRecord>()
+                        .eq(ExamRecord::getUserId, userId)
+                        .eq(ExamRecord::getStatus, 3)
+                        .isNotNull(ExamRecord::getTotalScore));
+
+        double avgScore = completedRecords.stream()
+                .mapToDouble(ExamRecord::getTotalScore)
+                .average()
+                .orElse(0.0);
+        double maxScore = completedRecords.stream()
+                .mapToDouble(ExamRecord::getTotalScore)
+                .max()
+                .orElse(0.0);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("pendingExamCount", pendingExamCount);
+        result.put("completedExamCount", completedExamCount);
+        result.put("avgScore", Math.round(avgScore * 10.0) / 10.0);
+        result.put("maxScore", maxScore);
+        return result;
     }
 }

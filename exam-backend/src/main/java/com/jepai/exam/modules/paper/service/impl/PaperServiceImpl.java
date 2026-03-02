@@ -55,4 +55,29 @@ public class PaperServiceImpl extends ServiceImpl<PaperMapper, Paper> implements
         }
         lambdaUpdate().eq(Paper::getId, id).set(Paper::getStatus, 1).update();
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Paper copyPaper(Long id) {
+        Paper source = getById(id);
+        if (source == null) {
+            throw new BusinessException("试卷不存在");
+        }
+        Paper copy = new Paper();
+        copy.setName(source.getName() + "_副本");
+        copy.setSubjectId(source.getSubjectId());
+        copy.setGenerateMode(source.getGenerateMode());
+        copy.setContent(source.getContent());
+        copy.setGenerateRule(source.getGenerateRule());
+        copy.setTotalScore(source.getTotalScore());
+        copy.setPassScore(source.getPassScore());
+        copy.setDuration(source.getDuration());
+        copy.setShuffleQuestion(source.getShuffleQuestion());
+        copy.setShuffleOption(source.getShuffleOption());
+        copy.setOrgId(source.getOrgId());
+        copy.setCreatorId(SecurityUtils.getCurrentUserId());
+        copy.setStatus(0);
+        save(copy);
+        return copy;
+    }
 }
