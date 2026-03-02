@@ -257,12 +257,15 @@ const handleBatchDisable = async () => {
   await ElMessageBox.confirm(`确定批量禁用选中的 ${selectedIds.value.length} 个用户吗？`)
   await batchDisableUsers(selectedIds.value)
   ElMessage.success('批量禁用成功')
+  selectedIds.value = []
   loadData()
 }
 
 const handleBatchEnable = async () => {
+  await ElMessageBox.confirm(`确定批量启用选中的 ${selectedIds.value.length} 个用户吗？`)
   await batchEnableUsers(selectedIds.value)
   ElMessage.success('批量启用成功')
+  selectedIds.value = []
   loadData()
 }
 

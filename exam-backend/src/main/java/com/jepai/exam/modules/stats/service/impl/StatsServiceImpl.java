@@ -34,6 +34,7 @@ public class StatsServiceImpl implements StatsService {
         List<ExamRecord> records = recordMapper.selectList(
                 new LambdaQueryWrapper<ExamRecord>()
                         .eq(ExamRecord::getExamId, examId)
+                        // status 3 = completed
                         .eq(ExamRecord::getStatus, 3));
 
         ExamArrange exam = examMapper.selectById(examId);
@@ -160,8 +161,10 @@ public class StatsServiceImpl implements StatsService {
     @Override
     public Map<String, Object> getStudentDashboard(Long userId) {
         long pendingExamCount = examMapper.selectCount(
+                // status 1 = published, 2 = in progress
                 new LambdaQueryWrapper<ExamArrange>().in(ExamArrange::getStatus, 1, 2));
         long completedExamCount = recordMapper.selectCount(
+                // status 3 = completed
                 new LambdaQueryWrapper<ExamRecord>()
                         .eq(ExamRecord::getUserId, userId)
                         .eq(ExamRecord::getStatus, 3));
