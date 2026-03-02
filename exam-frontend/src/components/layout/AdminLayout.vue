@@ -231,6 +231,7 @@ const handleCommand = async (command) => {
     .logo-text {
       white-space: nowrap;
       overflow: hidden;
+      color: #fff;
       background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;

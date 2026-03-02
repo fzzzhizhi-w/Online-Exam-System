@@ -74,10 +74,10 @@
           <template #default="{ row }">
             <span
               class="phone-cell"
-              @mouseenter="row._showPhone = true"
-              @mouseleave="row._showPhone = false"
+              @mouseenter="hoveredPhoneIds.add(row.id)"
+              @mouseleave="hoveredPhoneIds.delete(row.id)"
             >
-              {{ row._showPhone ? row.phone : maskPhone(row.phone) }}
+              {{ hoveredPhoneIds.has(row.id) ? row.phone : maskPhone(row.phone) }}
             </span>
           </template>
         </el-table-column>
@@ -176,6 +176,7 @@ const formRef = ref()
 const editForm = ref({})
 const selectedIds = ref([])
 const createTimeRange = ref(null)
+const hoveredPhoneIds = reactive(new Set())
 
 const query = reactive({
   keyword: '',
@@ -288,8 +289,11 @@ const getRoleName = (code) => {
 }
 
 const maskPhone = (phone) => {
-  if (!phone || phone.length < 7) return phone
-  return phone.substring(0, 3) + '****' + phone.substring(phone.length - 4)
+  if (!phone) return '--'
+  const str = String(phone).replace(/\D/g, '')
+  if (str.length < 7) return phone
+  const visible = Math.min(3, Math.floor(str.length / 3))
+  return str.substring(0, visible) + '****' + str.substring(str.length - 4)
 }
 
 onMounted(loadData)

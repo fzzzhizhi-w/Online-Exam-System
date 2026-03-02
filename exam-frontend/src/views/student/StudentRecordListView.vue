@@ -43,8 +43,13 @@
           </div>
           <div class="meta-item">
             <span v-if="record.status === 3">
-              <span class="status-tag" :class="record.passed ? 'tag-success' : 'tag-danger'">
-                {{ record.passed ? '✓ 通过' : '✗ 未通过' }}
+              <span
+                class="status-tag"
+                :class="record.passed ? 'tag-success' : 'tag-danger'"
+                :aria-label="record.passed ? '通过' : '未通过'"
+              >
+                <span aria-hidden="true">{{ record.passed ? '✓' : '✗' }}</span>
+                {{ record.passed ? ' 通过' : ' 未通过' }}
               </span>
             </span>
             <span v-else-if="record.status === 0">
