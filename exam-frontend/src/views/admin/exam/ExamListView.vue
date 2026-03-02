@@ -2,28 +2,52 @@
   <div class="exam-list">
     <el-card shadow="never">
       <template #header>
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span>考试管理</span>
-          <el-button type="primary" @click="handleAdd">新建考试</el-button>
+        <div class="flex-between">
+          <div class="flex-center gap-8">
+            <el-icon color="var(--primary-color)"><Calendar /></el-icon>
+            <span class="section-title">考试管理</span>
+          </div>
+          <el-button type="primary" :icon="Plus" @click="handleAdd">新建考试</el-button>
         </div>
       </template>
 
-      <el-table :data="tableData" v-loading="loading" border>
-        <el-table-column prop="name" label="考试名称" />
-        <el-table-column prop="startTime" label="开始时间" width="160" />
-        <el-table-column prop="endTime" label="结束时间" width="160" />
-        <el-table-column prop="status" label="状态" width="100">
+      <el-table :data="tableData" v-loading="loading" stripe>
+        <el-table-column prop="name" label="考试名称" min-width="180" />
+        <el-table-column label="考试时间" width="200">
           <template #default="{ row }">
-            <el-tag :type="getStatusType(row.status)" size="small">{{ getStatusName(row.status) }}</el-tag>
+            <div class="time-cell">
+              <div><el-icon size="12"><Timer /></el-icon> {{ row.startTime }}</div>
+              <div class="time-end">至 {{ row.endTime }}</div>
+            </div>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="280" fixed="right">
+        <el-table-column prop="status" label="状态" width="110">
           <template #default="{ row }">
-            <el-button size="small" text type="primary" @click="handleEdit(row)">编辑</el-button>
-            <el-button v-if="row.status === 0" size="small" text type="success" @click="handlePublish(row)">发布</el-button>
-            <el-button v-if="row.status === 1 || row.status === 2" size="small" text type="warning" @click="handleEnd(row)">结束</el-button>
+            <span class="status-tag" :class="getStatusClass(row.status)">
+              <span v-if="row.status === 2" class="pulse-dot"></span>
+              {{ getStatusName(row.status) }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="300" fixed="right">
+          <template #default="{ row }">
+            <el-button
+              size="small" text type="primary"
+              :disabled="row.status > 1"
+              @click="handleEdit(row)"
+            >编辑</el-button>
+            <el-button
+              v-if="row.status === 0"
+              size="small" text type="success"
+              @click="handlePublish(row)"
+            >发布</el-button>
+            <el-button
+              v-if="row.status === 1 || row.status === 2"
+              size="small" text type="warning"
+              @click="handleEnd(row)"
+            >结束</el-button>
             <el-button size="small" text @click="$router.push(`/stats/exam/${row.id}`)">统计</el-button>
-            <el-button size="small" text @click="$router.push(`/exam/monitor/${row.id}`)">监考</el-button>
+            <el-button size="small" text type="primary" @click="$router.push(`/exam/monitor/${row.id}`)">监考</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -82,6 +106,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Plus } from '@element-plus/icons-vue'
 import { pageExams, saveExam, publishExam, endExam } from '@/api/exam'
 
 const loading = ref(false)
@@ -146,13 +171,35 @@ const handleEnd = async (row) => {
   loadData()
 }
 
-const getStatusType = (s) => ({ 0: 'info', 1: 'primary', 2: 'success', 3: 'danger', 4: 'warning', 5: '' }[s] || 'info')
+const getStatusClass = (s) => ({
+  0: 'tag-info',
+  1: 'tag-primary',
+  2: 'tag-warning',
+  3: 'tag-info',
+  4: 'tag-primary',
+  5: 'tag-success',
+}[s] || 'tag-info')
+
 const getStatusName = (s) => ({ 0: '草稿', 1: '已发布', 2: '进行中', 3: '已结束', 4: '评卷中', 5: '已完成' }[s] || s)
 
 onMounted(loadData)
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.exam-list {
+  .time-cell {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .time-end {
+      color: var(--text-tertiary);
+    }
+  }
+}
 .mt-16 { margin-top: 16px; text-align: right; }
-.hint { color: #999; font-size: 12px; margin-left: 8px; }
+.hint { color: var(--text-tertiary); font-size: 12px; margin-left: 8px; }
 </style>

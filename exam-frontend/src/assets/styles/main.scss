@@ -7,7 +7,7 @@
 
 html, body, #app {
   height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* 滚动条样式 */
@@ -17,31 +17,321 @@ html, body, #app {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #F2F3F5;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: #C9CDD4;
   border-radius: 3px;
 }
 
-/* 自定义主题色 */
+::-webkit-scrollbar-thumb:hover {
+  background: #86909C;
+}
+
+/* ============================================
+   全局设计系统 CSS 变量
+   ============================================ */
 :root {
-  --primary-color: #409EFF;
-  --success-color: #67C23A;
-  --warning-color: #E6A23C;
-  --danger-color: #F56C6C;
+  /* 品牌主色 */
+  --primary-color: #165DFF;
+  --primary-hover: #4080FF;
+  --primary-active: #0E42D2;
+  --primary-light: rgba(22, 93, 255, 0.1);
+  --primary-lighter: rgba(22, 93, 255, 0.06);
+
+  /* 功能色 */
+  --success-color: #00B42A;
+  --success-light: rgba(0, 180, 42, 0.1);
+  --warning-color: #FF7D00;
+  --warning-light: rgba(255, 125, 0, 0.1);
+  --danger-color: #F53F3F;
+  --danger-light: rgba(245, 63, 63, 0.1);
+  --info-color: #86909C;
+  --info-light: rgba(134, 144, 156, 0.1);
+
+  /* 中性色 */
+  --text-primary: #1D2129;
+  --text-secondary: #4E5969;
+  --text-tertiary: #86909C;
+  --text-disabled: #C9CDD4;
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F2F3F5;
+  --bg-tertiary: #E5E6EB;
+  --border-color: #E5E6EB;
+  --border-light: #F2F3F5;
+
+  /* 侧边栏 */
+  --sidebar-bg: #0F172A;
+  --sidebar-bg-end: #1E293B;
   --sidebar-width: 220px;
   --header-height: 60px;
+
+  /* 阴影 */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+  /* 圆角 */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
 }
 
-/* 页面过渡动画 */
-.fade-enter-active,
+/* ============================================
+   全局排版规范
+   ============================================ */
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.body-text {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.caption-text {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-tertiary);
+}
+
+.data-number {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+/* ============================================
+   页面入场过渡动画
+   ============================================ */
+.fade-enter-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
 .fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.fade-enter-from,
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
 .fade-leave-to {
   opacity: 0;
+  transform: translateY(-6px);
 }
+
+/* ============================================
+   通用状态标签增强
+   ============================================ */
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 500;
+
+  &.tag-success {
+    color: var(--success-color);
+    background: var(--success-light);
+  }
+  &.tag-warning {
+    color: var(--warning-color);
+    background: var(--warning-light);
+  }
+  &.tag-danger {
+    color: var(--danger-color);
+    background: var(--danger-light);
+  }
+  &.tag-primary {
+    color: var(--primary-color);
+    background: var(--primary-light);
+  }
+  &.tag-info {
+    color: var(--text-tertiary);
+    background: var(--info-light);
+  }
+}
+
+/* ============================================
+   Element Plus 全局覆盖
+   ============================================ */
+
+/* 主色覆盖 */
+.el-button--primary {
+  --el-button-bg-color: var(--primary-color);
+  --el-button-border-color: var(--primary-color);
+  --el-button-hover-bg-color: var(--primary-hover);
+  --el-button-hover-border-color: var(--primary-hover);
+  --el-button-active-bg-color: var(--primary-active);
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.el-button--default {
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.el-button--danger {
+  border-radius: var(--radius-md);
+}
+
+/* 输入框圆角 */
+.el-input__wrapper,
+.el-select .el-input__wrapper {
+  border-radius: var(--radius-md) !important;
+  transition: box-shadow 0.3s ease !important;
+}
+
+.el-input__wrapper:focus-within {
+  box-shadow: 0 0 0 1px var(--primary-color) inset, 0 0 0 3px var(--primary-lighter) !important;
+}
+
+/* 卡片样式 */
+.el-card {
+  border-radius: var(--radius-lg) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: var(--shadow-sm) !important;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.el-card:hover {
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* 标签圆角 */
+.el-tag {
+  border-radius: var(--radius-sm) !important;
+}
+
+/* 对话框圆角 */
+.el-dialog {
+  border-radius: var(--radius-xl) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.el-dialog__header {
+  padding: 20px 24px 16px !important;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.el-dialog__body {
+  padding: 20px 24px !important;
+}
+
+.el-dialog__footer {
+  padding: 16px 24px 20px !important;
+  border-top: 1px solid var(--border-color);
+}
+
+/* 表格增强 */
+.el-table {
+  border-radius: var(--radius-lg) !important;
+  overflow: hidden;
+
+  th.el-table__cell {
+    background: var(--bg-secondary) !important;
+    color: var(--text-secondary) !important;
+    font-weight: 500;
+    font-size: 13px;
+  }
+
+  td.el-table__cell {
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+
+  .el-table__row:hover > td {
+    background: var(--primary-lighter) !important;
+  }
+}
+
+/* 分页增强 */
+.el-pagination {
+  --el-pagination-button-color: var(--text-secondary);
+  --el-pagination-hover-color: var(--primary-color);
+}
+
+/* ============================================
+   "考试中"状态呼吸动画
+   ============================================ */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.pulse-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse-dot 1.5s ease-in-out infinite;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* ============================================
+   数字滚动动画
+   ============================================ */
+@keyframes count-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.count-animate {
+  display: inline-block;
+  animation: count-up 0.6s ease-out;
+}
+
+/* ============================================
+   卡片 hover 上浮
+   ============================================ */
+.hover-float {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md) !important;
+  }
+}
+
+/* 通用间距工具类 */
+.mb-8  { margin-bottom: 8px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.mt-8  { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.flex-center {
+  display: flex;
+  align-items: center;
+}
+.gap-8  { gap: 8px; }
+.gap-16 { gap: 16px; }

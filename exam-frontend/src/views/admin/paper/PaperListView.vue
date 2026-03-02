@@ -2,24 +2,31 @@
   <div class="paper-list">
     <el-card shadow="never">
       <template #header>
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span>试卷管理</span>
-          <el-button type="primary" @click="handleAdd">新建试卷</el-button>
+        <div class="flex-between">
+          <div class="flex-center gap-8">
+            <el-icon color="var(--primary-color)"><Document /></el-icon>
+            <span class="section-title">试卷管理</span>
+          </div>
+          <el-button type="primary" :icon="Plus" @click="handleAdd">新建试卷</el-button>
         </div>
       </template>
-      <el-table :data="tableData" v-loading="loading" border>
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="name" label="试卷名称" />
+      <el-table :data="tableData" v-loading="loading" stripe>
+        <el-table-column prop="id" label="ID" width="70" />
+        <el-table-column prop="name" label="试卷名称" min-width="180" />
         <el-table-column prop="generateMode" label="组卷模式" width="110">
           <template #default="{ row }">
-            <el-tag size="small">{{ {1:'固定组卷',2:'随机组卷',3:'自适应'}[row.generateMode] }}</el-tag>
+            <span class="mode-tag" :class="`mode-${row.generateMode}`">
+              {{ { 1:'固定组卷', 2:'随机组卷', 3:'自适应' }[row.generateMode] }}
+            </span>
           </template>
         </el-table-column>
-        <el-table-column prop="totalScore" label="总分" width="80" />
-        <el-table-column prop="duration" label="时长(分)" width="100" />
+        <el-table-column prop="totalScore" label="总分" width="80" align="center" />
+        <el-table-column prop="duration" label="时长(分)" width="90" align="center" />
         <el-table-column prop="status" label="状态" width="90">
           <template #default="{ row }">
-            <el-tag :type="row.status === 1 ? 'success' : 'info'" size="small">{{ row.status === 1 ? '已发布' : '草稿' }}</el-tag>
+            <span class="status-tag" :class="row.status === 1 ? 'tag-success' : 'tag-info'">
+              {{ row.status === 1 ? '已发布' : '草稿' }}
+            </span>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
@@ -79,6 +86,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Plus } from '@element-plus/icons-vue'
 import { pagePapers, savePaper, deletePaper, publishPaper } from '@/api/paper'
 
 const loading = ref(false)
@@ -121,3 +129,19 @@ const handleDelete = async (row) => {
 
 onMounted(loadData)
 </script>
+
+<style scoped lang="scss">
+.paper-list {
+  .mode-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+
+    &.mode-1 { background: rgba(22,93,255,0.1);  color: #165DFF; }
+    &.mode-2 { background: rgba(114,46,209,0.1); color: #722ED1; }
+    &.mode-3 { background: rgba(255,125,0,0.1);  color: #FF7D00; }
+  }
+}
+</style>
