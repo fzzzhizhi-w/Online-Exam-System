@@ -11,10 +11,12 @@
       <!-- 搜索区 -->
       <el-form :model="query" inline class="mb-16">
         <el-form-item>
-          <el-input v-model="query.keyword" placeholder="姓名/用户名" clearable style="width:180px" />
+          <el-input v-model="query.keyword" placeholder="姓名/用户名" clearable style="width:180px"
+            @input="debouncedLoad" />
         </el-form-item>
         <el-form-item>
-          <el-select v-model="query.roleCode" placeholder="角色" clearable style="width:130px">
+          <el-select v-model="query.roleCode" placeholder="角色" clearable style="width:130px"
+            @change="loadData">
             <el-option label="超级管理员" value="SUPER_ADMIN" />
             <el-option label="机构管理员" value="ORG_ADMIN" />
             <el-option label="教师" value="TEACHER" />
@@ -23,12 +25,45 @@
           </el-select>
         </el-form-item>
         <el-form-item>
+          <el-select v-model="query.status" placeholder="状态" clearable style="width:100px"
+            @change="loadData">
+            <el-option label="正常" :value="1" />
+            <el-option label="禁用" :value="0" />
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-date-picker
+            v-model="createTimeRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="创建开始"
+            end-placeholder="创建结束"
+            value-format="YYYY-MM-DDTHH:mm:ss"
+            style="width:240px"
+            @change="handleDateRangeChange"
+          />
+        </el-form-item>
+        <el-form-item>
           <el-button type="primary" @click="loadData">搜索</el-button>
-          <el-button @click="() => { query.keyword = ''; query.roleCode = ''; loadData() }">重置</el-button>
+          <el-button @click="handleReset">重置</el-button>
         </el-form-item>
       </el-form>
 
-      <el-table :data="tableData" v-loading="loading" border>
+      <!-- 批量操作 -->
+      <div v-if="selectedIds.length > 0" class="batch-actions mb-16">
+        <el-button size="small" type="danger" @click="handleBatchDelete">
+          批量删除 ({{ selectedIds.length }})
+        </el-button>
+        <el-button size="small" type="warning" @click="handleBatchDisable">
+          批量禁用 ({{ selectedIds.length }})
+        </el-button>
+        <el-button size="small" type="success" @click="handleBatchEnable">
+          批量启用 ({{ selectedIds.length }})
+        </el-button>
+      </div>
+
+      <el-table :data="tableData" v-loading="loading" border @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="50" />
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="username" label="用户名" width="120" />
         <el-table-column prop="realName" label="姓名" width="100" />
@@ -45,7 +80,9 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" width="160" />
+        <el-table-column label="创建时间" width="160">
+          <template #default="{ row }">{{ formatDateTime(row.createTime) }}</template>
+        </el-table-column>
         <el-table-column label="操作" width="220" fixed="right">
           <template #default="{ row }">
             <el-button size="small" text type="primary" @click="handleEdit(row)">编辑</el-button>
@@ -112,7 +149,11 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import { pageUsers, saveUser, deleteUser, resetPassword, updateStatus } from '@/api/user'
+import {
+  pageUsers, saveUser, deleteUser, resetPassword, updateStatus,
+  batchDeleteUsers, batchDisableUsers, batchEnableUsers,
+} from '@/api/user'
+import { formatDateTime, debounce } from '@/utils/format'
 
 const loading = ref(false)
 const tableData = ref([])
@@ -120,8 +161,18 @@ const total = ref(0)
 const dialogVisible = ref(false)
 const formRef = ref()
 const editForm = ref({})
+const selectedIds = ref([])
+const createTimeRange = ref(null)
 
-const query = reactive({ keyword: '', roleCode: '', pageNum: 1, pageSize: 10 })
+const query = reactive({
+  keyword: '',
+  roleCode: '',
+  status: null,
+  createTimeStart: null,
+  createTimeEnd: null,
+  pageNum: 1,
+  pageSize: 10,
+})
 
 const rules = {
   username: [{ required: true, message: '请输入用户名' }],
@@ -139,6 +190,28 @@ const loadData = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const debouncedLoad = debounce(loadData, 300)
+
+const handleDateRangeChange = (val) => {
+  query.createTimeStart = val ? val[0] : null
+  query.createTimeEnd = val ? val[1] : null
+  loadData()
+}
+
+const handleReset = () => {
+  query.keyword = ''
+  query.roleCode = ''
+  query.status = null
+  query.createTimeStart = null
+  query.createTimeEnd = null
+  createTimeRange.value = null
+  loadData()
+}
+
+const handleSelectionChange = (selection) => {
+  selectedIds.value = selection.map((row) => row.id)
 }
 
 const handleAdd = () => { editForm.value = { orgId: 1, status: 1 }; dialogVisible.value = true }
@@ -172,6 +245,27 @@ const handleResetPwd = async (row) => {
   ElMessage.success('密码已重置')
 }
 
+const handleBatchDelete = async () => {
+  await ElMessageBox.confirm(`确定批量删除选中的 ${selectedIds.value.length} 个用户吗？`, '警告', { type: 'warning' })
+  await batchDeleteUsers(selectedIds.value)
+  ElMessage.success('批量删除成功')
+  selectedIds.value = []
+  loadData()
+}
+
+const handleBatchDisable = async () => {
+  await ElMessageBox.confirm(`确定批量禁用选中的 ${selectedIds.value.length} 个用户吗？`)
+  await batchDisableUsers(selectedIds.value)
+  ElMessage.success('批量禁用成功')
+  loadData()
+}
+
+const handleBatchEnable = async () => {
+  await batchEnableUsers(selectedIds.value)
+  ElMessage.success('批量启用成功')
+  loadData()
+}
+
 const getRoleName = (code) => {
   const map = { SUPER_ADMIN: '超级管理员', ORG_ADMIN: '机构管理员', TEACHER: '教师', GRADER: '评卷员', STUDENT: '考生' }
   return map[code] || code
@@ -183,4 +277,5 @@ onMounted(loadData)
 <style scoped>
 .mb-16 { margin-bottom: 16px; }
 .mt-16 { margin-top: 16px; text-align: right; }
+.batch-actions { display: flex; gap: 8px; }
 </style>

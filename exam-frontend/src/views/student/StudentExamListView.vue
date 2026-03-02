@@ -18,8 +18,12 @@
 
       <el-table :data="exams" v-loading="loading" stripe>
         <el-table-column prop="name" label="考试名称" min-width="180" />
-        <el-table-column prop="startTime" label="开始时间" width="160" />
-        <el-table-column prop="endTime" label="结束时间" width="160" />
+        <el-table-column label="开始时间" width="160">
+          <template #default="{ row }">{{ formatDateTime(row.startTime) }}</template>
+        </el-table-column>
+        <el-table-column label="结束时间" width="160">
+          <template #default="{ row }">{{ formatDateTime(row.endTime) }}</template>
+        </el-table-column>
         <el-table-column prop="duration" label="时长(分钟)" width="100" align="center" />
         <el-table-column label="状态" width="100" align="center">
           <template #default="{ row }">
@@ -61,6 +65,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { pageExams } from '@/api/exam'
+import { formatDateTime } from '@/utils/format'
 
 const router = useRouter()
 const loading = ref(false)

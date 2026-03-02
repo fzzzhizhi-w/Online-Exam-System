@@ -13,8 +13,12 @@ public class Result<T> {
     private String message;
     /** 数据 */
     private T data;
+    /** 时间戳（毫秒） */
+    private Long timestamp;
 
-    private Result() {}
+    private Result() {
+        this.timestamp = System.currentTimeMillis();
+    }
 
     public static <T> Result<T> success() {
         return success(null);

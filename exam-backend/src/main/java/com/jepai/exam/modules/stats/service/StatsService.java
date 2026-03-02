@@ -16,4 +16,10 @@ public interface StatsService {
     Map<String, Object> getPersonalReport(Long recordId, Long userId);
 
     Map<String, Object> getMyHistory(Long userId, Integer pageNum, Integer pageSize);
+
+    /** 管理端/教师端控制台统计 */
+    Map<String, Object> getDashboard();
+
+    /** 学生端控制台统计 */
+    Map<String, Object> getStudentDashboard(Long userId);
 }

@@ -14,3 +14,6 @@ export const deletePaper = (id) => request.delete(`/papers/${id}`)
 
 // 发布试卷
 export const publishPaper = (id) => request.post(`/papers/${id}/publish`)
+
+// 复制试卷
+export const copyPaper = (id) => request.post(`/papers/${id}/copy`)

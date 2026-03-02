@@ -7,10 +7,14 @@
 
       <el-table :data="records" v-loading="loading" stripe>
         <el-table-column prop="examId" label="考试ID" width="80" align="center" />
-        <el-table-column prop="startTime" label="开始时间" width="160" />
-        <el-table-column prop="submitTime" label="交卷时间" width="160" />
+        <el-table-column label="开始时间" width="160">
+          <template #default="{ row }">{{ formatDateTime(row.startTime) }}</template>
+        </el-table-column>
+        <el-table-column label="交卷时间" width="160">
+          <template #default="{ row }">{{ formatDateTime(row.submitTime) }}</template>
+        </el-table-column>
         <el-table-column label="用时" width="100" align="center">
-          <template #default="{ row }">{{ formatTime(row.usedTime) }}</template>
+          <template #default="{ row }">{{ formatDuration(row.usedTime) }}</template>
         </el-table-column>
         <el-table-column label="总分" width="90" align="center">
           <template #default="{ row }">
@@ -60,6 +64,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { pageRecords } from '@/api/exam'
 import { useAuthStore } from '@/stores/auth'
+import { formatDateTime, formatDuration } from '@/utils/format'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -68,13 +73,6 @@ const records = ref([])
 const pageNum = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
-
-const formatTime = (seconds) => {
-  if (!seconds) return '--'
-  const m = Math.floor(seconds / 60)
-  const s = seconds % 60
-  return `${m}分${s}秒`
-}
 
 const loadRecords = async () => {
   loading.value = true

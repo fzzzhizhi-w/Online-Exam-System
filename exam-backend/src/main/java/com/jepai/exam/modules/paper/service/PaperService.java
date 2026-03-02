@@ -19,4 +19,9 @@ public interface PaperService extends IService<Paper> {
      * 发布试卷
      */
     void publishPaper(Long id);
+
+    /**
+     * 复制试卷
+     */
+    Paper copyPaper(Long id);
 }

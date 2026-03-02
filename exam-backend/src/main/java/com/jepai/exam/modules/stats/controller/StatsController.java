@@ -54,4 +54,17 @@ public class StatsController {
         Long userId = SecurityUtils.getCurrentUserId();
         return Result.success(statsService.getMyHistory(userId, pageNum, pageSize));
     }
+
+    @ApiOperation("管理端/教师端控制台统计")
+    @GetMapping("/dashboard")
+    public Result<Map<String, Object>> dashboard() {
+        return Result.success(statsService.getDashboard());
+    }
+
+    @ApiOperation("学生端控制台统计")
+    @GetMapping("/student/dashboard")
+    public Result<Map<String, Object>> studentDashboard() {
+        Long userId = SecurityUtils.getCurrentUserId();
+        return Result.success(statsService.getStudentDashboard(userId));
+    }
 }

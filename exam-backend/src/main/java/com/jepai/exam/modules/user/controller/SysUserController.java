@@ -14,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -96,5 +97,43 @@ public class SysUserController {
                 body.get("newPassword")
         );
         return Result.success();
+    }
+
+    @ApiOperation("批量删除用户")
+    @DeleteMapping("/batch-delete")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ORG_ADMIN')")
+    public Result<?> batchDelete(@RequestBody List<Long> ids) {
+        userService.batchDelete(ids);
+        return Result.success();
+    }
+
+    @ApiOperation("批量禁用用户")
+    @PutMapping("/batch-disable")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ORG_ADMIN')")
+    public Result<?> batchDisable(@RequestBody List<Long> ids) {
+        userService.batchUpdateStatus(ids, 0);
+        return Result.success();
+    }
+
+    @ApiOperation("批量启用用户")
+    @PutMapping("/batch-enable")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'ORG_ADMIN')")
+    public Result<?> batchEnable(@RequestBody List<Long> ids) {
+        userService.batchUpdateStatus(ids, 1);
+        return Result.success();
+    }
+
+    @ApiOperation("检查用户名是否可用")
+    @GetMapping("/check-username")
+    public Result<Boolean> checkUsername(@RequestParam String username,
+                                         @RequestParam(required = false) Long excludeId) {
+        return Result.success(userService.isUsernameAvailable(username, excludeId));
+    }
+
+    @ApiOperation("检查手机号是否可用")
+    @GetMapping("/check-phone")
+    public Result<Boolean> checkPhone(@RequestParam String phone,
+                                      @RequestParam(required = false) Long excludeId) {
+        return Result.success(userService.isPhoneAvailable(phone, excludeId));
     }
 }
